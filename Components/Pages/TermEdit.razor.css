@@ -1,0 +1,119 @@
+﻿.page-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.toolbar {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-bottom: 1px solid #ddd;
+}
+
+.toolbar-item {
+    padding: 8px 12px;
+    margin-left: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #0066cc;
+}
+
+    .toolbar-item:hover {
+        text-decoration: underline;
+    }
+
+.content-container {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.form-grid {
+    background-color: whitesmoke;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: flex;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.form-label {
+    font-weight: bold;
+    font-size: 16px;
+    width: 120px;
+    margin-right: 20px;
+}
+
+.form-control {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.course-count {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.collection-view {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.course-item {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: box-shadow 0.2s ease;
+}
+
+    .course-item:hover {
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+.course-grid {
+    background-color: whitesmoke;
+    padding: 12px;
+}
+
+.course-row {
+    display: flex;
+    margin-bottom: 8px;
+}
+
+.course-label {
+    font-weight: bold;
+    font-size: 16px;
+    width: 150px;
+    margin-right: 20px;
+}
+
+.course-value {
+    font-size: 16px;
+}
+
+button.btn-primary {
+    background-color: #0066cc;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+    button.btn-primary:hover {
+        background-color: #0056b3;
+    }

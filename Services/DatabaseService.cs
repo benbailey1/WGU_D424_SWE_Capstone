@@ -61,7 +61,7 @@ namespace StudentTermTracker.Services
             return await _dbConn.Table<Term>().ToListAsync();
         }
 
-        public static async Task<Term> GetTermById(int termId)
+        public static async Task<Term> GetTermByIdAsync(int termId)
         {
             await Init();
 
