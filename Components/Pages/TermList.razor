@@ -1,0 +1,303 @@
+﻿@page "/terms"
+@using Plugin.LocalNotification
+@using StudentTermTracker.Models
+@using StudentTermTracker.Services
+@inject NavigationManager Navigation
+@implements IDisposable
+
+<h3>TermList</h3>
+
+ 
+    <div class="page">
+        <div class="search-container">
+            <input 
+                type="text"
+                class="search-input"
+                placeholder="Search terms..."
+                @bind-value="searchText"
+                @bind-value:event="oninput"
+             />
+        </div>
+    </div>
+    <div class="toolbar">
+        <button class="toolbar-item" @onclick="AddTerm_OnClicked">Add Term</button>
+    </div>
+
+    @if (_terms == null || !_terms.Any())
+    {
+        <div class="empty-view">No Terms to Display. Add One Now!</div>
+    }
+    else
+    {
+        <div class="collection-view">
+            @foreach (var term in FilteredTerms)
+            {
+                <div class="term-item" @onclick="() => TermSelected(term)">
+                    <div class="grid-container">
+                        <div class="grid-row">
+                            <span class="label">Name</span>
+                            <span class="value">@term.Name</span>
+                        </div>
+                        <div class="grid-row">
+                            <span class="label">Start Date</span>
+                            <span class="value">@term.StartDate.ToString("M/dd/yyyy")</span>
+                        </div>
+                        <div class="grid-row">
+                            <span class="label">End Date</span>
+                            <span class="value">@term.EndDate.ToString("M/dd/yyyy")</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+
+<style>
+    .toolbar {
+        margin-bottom: 10px;
+    }
+
+    .toolbar-item {
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+    }
+
+    .collection-view {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .term-item {
+        background-color: whitesmoke;
+        padding: 5px;
+        cursor: pointer;
+    }
+
+    .grid-container {
+        display: grid;
+        gap: 1px;
+    }
+
+    .grid-row {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 22px;
+        align-items: center;
+    }
+
+    .label {
+        font-weight: bold;
+        font-size: 1.1em;
+    }
+
+    .value {
+        font-size: 1.1em;
+    }
+
+    .empty-view {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+    }
+
+    .search-container {
+        margin-bottom: 15px;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1em;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+    .search-input:focus {
+        border-color: #007bff;
+    }
+
+</style>
+
+@code {
+    private string searchText = "";
+    private IEnumerable<Term> _terms;
+    private IEnumerable<Term> FilteredTerms =>
+        string.IsNullOrWhiteSpace(searchText)
+            ? _terms
+            : _terms?.Where(t =>
+                t.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                t.StartDate.ToString("M/dd/yyyy").Contains(searchText) ||
+                t.EndDate.ToString("M/dd/yyyy").Contains(searchText)
+            );
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Services.Settings.FirstRun)
+        {
+            await DatabaseService.LoadSampleData();
+            Services.Settings.FirstRun = false;
+        }
+
+        await RefreshTermCollectionView();
+        await ShowCourseNotifications();
+        await ShowAssessmentNotifications();
+    }
+
+    private async Task ShowAssessmentNotifications()
+    {
+        var notificationsEnabled = await HandleNotificationPermissions();
+
+        if (!notificationsEnabled)
+        {
+            return;
+        }
+
+        var assessments = await DatabaseService.GetAllAssessmentsAsync();
+
+        foreach (Assessment assessment in assessments)
+        {
+            if (assessment.StartNotification && assessment.StartDate == DateTime.Today)
+            {
+                var notification = new NotificationRequest
+                    {
+                        NotificationId = Math.Abs(Guid.NewGuid().GetHashCode()),
+                        Title = "Assessment Notification",
+                        Subtitle = "Assessment Start Reminder",
+                        Description = $"{assessment.Name} begins today.",
+                        Schedule = new NotificationRequestSchedule
+                        {
+                            NotifyTime = DateTime.Now.AddSeconds(2),
+                        }
+                    };
+
+                await LocalNotificationCenter.Current.Show(notification);
+            }
+
+            if (assessment.EndNotification && assessment.EndDate == DateTime.Today)
+            {
+                var notification = new NotificationRequest
+                    {
+                        NotificationId = Math.Abs(Guid.NewGuid().GetHashCode()),
+                        Title = "Assessment Notification",
+                        Subtitle = "Assessment Ending Reminder",
+                        Description = $"{assessment.Name} ends today.",
+                        Schedule = new NotificationRequestSchedule
+                        {
+                            NotifyTime = DateTime.Now.AddSeconds(2),
+                        }
+                    };
+
+                await LocalNotificationCenter.Current.Show(notification);
+            }
+        }
+    }
+
+    private async Task<bool> HandleNotificationPermissions()
+    {
+        var areNotificationsEnabled = await EnableNotificationPermissions();
+
+        if (!areNotificationsEnabled)
+        {
+            bool confirmDisableNotifications = await Application.Current.MainPage.DisplayAlert(
+                "Notifications Disabled!",
+                "You have opted out of notifications and won't be able to receive Start & End notifications for Courses and Assessments. Are you sure?",
+                "Yes",
+                "No"
+            );
+
+            if (!confirmDisableNotifications)
+            {
+                return await HandleNotificationPermissions();
+            }
+        }
+
+        return areNotificationsEnabled;
+    }
+
+    private async Task<bool> EnableNotificationPermissions()
+    {
+        if (await LocalNotificationCenter.Current.AreNotificationsEnabled())
+            return true;
+
+        return await LocalNotificationCenter.Current.RequestNotificationPermission();
+    }
+
+    private async Task ShowCourseNotifications()
+    {
+        var notificationsEnabled = await HandleNotificationPermissions();
+
+        if (!notificationsEnabled)
+        {
+            return;
+        }
+
+        var courseList = await DatabaseService.GetAllCoursesAsync();
+
+        foreach (Course course in courseList)
+        {
+            if (course.StartNotification && course.StartDate == DateTime.Today)
+            {
+                var notification = new NotificationRequest
+                    {
+                        NotificationId = Math.Abs(Guid.NewGuid().GetHashCode()),
+                        Title = "Course Notification",
+                        Subtitle = "Course Starting Soon",
+                        Description = $"{course.Name} starts today.",
+                        Schedule = new NotificationRequestSchedule
+                        {
+                            NotifyTime = DateTime.Now.AddSeconds(2),
+                        }
+                    };
+
+                await LocalNotificationCenter.Current.Show(notification);
+            }
+
+            if (course.EndNotification && course.EndDate == DateTime.Today)
+            {
+                var notification = new NotificationRequest
+                    {
+                        NotificationId = Math.Abs(Guid.NewGuid().GetHashCode()),
+                        Title = "Course Notification",
+                        Subtitle = "Course Ending Soon",
+                        Description = $"{course.Name} ends today.",
+                        Schedule = new NotificationRequestSchedule
+                        {
+                            NotifyTime = DateTime.Now.AddSeconds(2),
+                        }
+                    };
+
+                await LocalNotificationCenter.Current.Show(notification);
+            }
+        }
+    }
+
+    private async Task RefreshTermCollectionView()
+    {
+        _terms = await DatabaseService.GetAllTerms();
+        StateHasChanged();
+    }
+
+    private async Task AddTerm_OnClicked()
+    {
+        // Note: You'll need to implement navigation to your TermAdd page in Blazor
+        Navigation.NavigateTo("/term/add");
+    }
+
+    private async Task TermSelected(Term term)
+    {
+        // Note: You'll need to implement navigation to your TermEdit page in Blazor
+        Navigation.NavigateTo($"/term/edit/{term.Id}");
+    }
+
+    public void Dispose()
+    {
+        // Cleanup if needed
+    }
+}

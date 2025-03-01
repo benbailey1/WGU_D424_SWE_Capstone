@@ -1,0 +1,135 @@
+﻿@page "/term/add"
+@using StudentTermTracker.Models
+@using StudentTermTracker.Services
+@inject NavigationManager Navigation
+@inject IDialogService DialogService
+
+<div class="page">
+    <div class="toolbar">
+        <button class="toolbar-item" @onclick="SaveTerm_Clicked">Save</button>
+        <button class="toolbar-item" @onclick="CancelTerm_Clicked">Cancel</button>
+    </div>
+
+    <div class="form-container">
+        <div class="form-grid">
+            <div class="form-row">
+                <label>Name</label>
+                <input type="text"
+                    @bind="termName"
+                    @bind:event="oninput"
+                    placeholder="Enter Term Name"
+                    class="form-input" />
+            </div>
+            <div class="form-row">
+                <label>Start Date</label>
+                <input type="date"
+                    @bind="startDate"
+                    @bind:format="yyyy-MM-dd"
+                    class="form-input" />
+            </div>
+            <div class="form-row">
+                <label>End Date</label>
+                <input type="date"
+                    @bind="endDate"
+                    @bind:format="yyyy-MM-dd"
+                    class="form-input" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .toolbar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .toolbar-item {
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .form-container {
+        background-color: whitesmoke;
+        padding: 15px;
+        border-radius: 4px;
+    }
+
+    .form-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 20px;
+        align-items: center;
+    }
+
+    .form-input {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1em;
+    }
+
+    .label {
+        font-size: 1.1em;
+    }
+
+</style>
+
+@code {
+    private string termName = "";
+    private DateTime startDate = DateTime.Today;
+    private DateTime endDate = DateTime.Today.AddMonths(6);
+
+    private async Task SaveTerm_Clicked(MouseEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(termName))
+        {
+            await DialogService.DisplayAlert("Missing Name", "Please enter a name.", "OK");
+
+            return;
+        }
+
+        if (startDate == DateTime.Today)
+        {
+            bool confirm = await DialogService.DisplayAlert("Confirm Start Date", "Start Date is set to today. Is that correct?", "Yes", "No");
+
+            if (!confirm) return;
+        }
+
+        if (endDate < startDate.AddMonths(6))
+        {
+            await DialogService.DisplayAlert(
+                "Invalid Term Length",
+                $"The End Date must be 6 months after the Start Date. Based on your start date, the term should end on {startDate.AddMonths(6):d}",
+                "OK"
+            );
+
+            return;
+        }
+
+        Term newTerm = new Term
+        {
+            Name = termName,
+            StartDate = startDate,
+            EndDate = endDate
+        };
+
+        await DatabaseService.CreateTermAsync(newTerm);
+        Navigation.NavigateTo("/terms");
+    }
+    private void CancelTerm_Clicked(MouseEventArgs e)
+    {
+        Navigation.NavigateTo("/terms");
+    }
+}
