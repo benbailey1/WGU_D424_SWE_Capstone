@@ -23,6 +23,7 @@ namespace StudentTermTracker
 #endif
 
             builder.Services.AddScoped<IDialogService, DialogService>();
+            builder.Services.AddScoped<ShareService>();
 
             return builder.Build();
         }

@@ -1,0 +1,252 @@
+﻿.page-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+.toolbar {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-bottom: 1px solid #ddd;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.toolbar-item {
+    padding: 8px 12px;
+    margin-left: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #0066cc;
+}
+
+    .toolbar-item:hover {
+        text-decoration: underline;
+    }
+
+.scrollable-content {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 300px; /* Large padding to ensure space for keyboard */
+}
+
+.content-container {
+    padding: 15px;
+}
+
+.course-form-grid {
+    background-color: whitesmoke;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: flex;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.form-label {
+    font-weight: bold;
+    font-size: 16px;
+    width: 150px;
+    margin-right: 20px;
+}
+
+.form-control {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Custom switch styling */
+.switch-container {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+    margin-left: auto;
+}
+
+    .switch-container input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }
+
+
+/**/
+
+.page-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    /*    overflow: hidden;*/ /* FOR USE WITH JS INTEROP SCROLL FUNCTION (NOT CURRENTLY USING) */
+}
+
+/* FOR USE WITH JS INTEROP SCROLL FUNCTION (NOT CURRENTLY USING) */
+/*.toolbar {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-bottom: 1px solid #ddd;
+}*/
+
+.toolbar {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-bottom: 1px solid #ddd;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.toolbar-item {
+    padding: 8px 12px;
+    margin-left: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #0066cc;
+}
+
+    .toolbar-item:hover {
+        text-decoration: underline;
+    }
+
+.scrollable-content {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 300px; /* Large padding to ensure space for keyboard */
+}
+
+.content-container {
+    padding: 15px;
+}
+
+.course-form-grid {
+    background-color: whitesmoke;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: flex;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.form-label {
+    font-weight: bold;
+    font-size: 16px;
+    width: 150px;
+    margin-right: 20px;
+}
+
+.form-control {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* FOR USE WITH JS INTEROP SCROLL FUNCTION (NOT CURRENTLY USING) */
+/* Add padding for better scrolling with keyboard 
+.keyboard-padding {
+    height: 300px;  Adjust as needed to ensure enough scroll space 
+}*/
+
+ Custom switch styling 
+.switch-container {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+    margin-left: auto;
+}
+
+    .switch-container input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }

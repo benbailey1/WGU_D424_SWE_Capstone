@@ -1,0 +1,217 @@
+﻿@page "/course/add/{TermId:int}"
+@using StudentTermTracker.Models
+@using StudentTermTracker.Services
+@using System.Text.RegularExpressions
+@inject NavigationManager NavigationManager
+@inject IDialogService DialogService
+@* @inject IJSRuntime JSRuntime *@ @*UNCOMMENT THIS if decided to use JS Window Scroll function instead of the CSS only approach (CSS currently implemented)*@
+
+<div class="page-container">
+    <div class="toolbar">
+        <button class="toolbar-item" @onclick="SaveCourse_Clicked">Save</button>
+        <button class="toolbar-item" @onclick="CancelCourse_Clicked">Cancel</button>
+        <button class="toolbar-item" @onclick="Home_Clicked">Home</button>
+    </div>
+    <div class="scrollable-content">   
+        <div class="content-container">
+            <div class="course-form-grid">
+                <div class="form-row">
+                    <label class="form-label">Name</label>
+                    <input type="text" @bind="course.Name" class="form-control" /> <!-- @onfocus="ScrollToView" --> <!-- UNCOMMENT THIS if decided to use JS Window Scroll function instead of the CSS only approach (CSS currently implemented) -->
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" @bind="course.StartDate" @bind:format="yyyy-MM-dd" class="form-control" /> <!-- @onfocus="ScrollToView" --> <!-- UNCOMMENT THIS if decided to use JS Window Scroll function instead of the CSS only approach (CSS currently implemented) -->
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label">End Date</label>
+                    <input type="date" @bind="course.EndDate" @bind:format="yyyy-MM-dd" class="form-control" /> <!-- @onfocus="ScrollToView" --> <!-- UNCOMMENT THIS if decided to use JS Window Scroll function instead of the CSS only approach (CSS currently implemented) -->
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label">Instructor Name</label>
+                    <input type="text" @bind="course.InstructorName" class="form-control" /> <!-- @onfocus="ScrollToView" --> <!-- UNCOMMENT THIS if decided to use JS Window Scroll function instead of the CSS only approach (CSS currently implemented) -->
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label">Instructor Phone</label>
+                    <input type="text" @bind="course.InstructorPhone" class="form-control" /> <!-- @onfocus="ScrollToView" --> <!-- UNCOMMENT THIS if decided to use JS Window Scroll function instead of the CSS only approach (CSS currently implemented) -->
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label">Instructor Email</label>
+                    <input type="text" @bind="course.InstructorEmail" class="form-control" /> <!-- @onfocus="ScrollToView" --> <!-- UNCOMMENT THIS if decided to use JS Window Scroll function instead of the CSS only approach (CSS currently implemented) -->
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label">Course Status</label>
+                    <select @bind="selectedStatusDisplay" class="form-control"> <!-- @onfocus="ScrollToView" --> <!-- UNCOMMENT THIS if decided to use JS Window Scroll function instead of the CSS only approach (CSS currently implemented) -->
+                        <option value="">-- Select Status --</option>
+                        @foreach(var status in courseStatuses)
+                        { 
+                            <option value="@status"> @status </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label">Notify At Start Date</label>
+                    <label class="switch-container">
+                        <input type="checkbox" @bind="course.StartNotification" /> <!-- @onfocus="ScrollToView" --> <!-- UNCOMMENT THIS if decided to use JS Window Scroll function instead of the CSS only approach (CSS currently implemented) -->
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="form-row">
+                    <label class="form-label">Notify at End Date</label>
+                    <label class="switch-container">
+                        <input type="checkbox" @bind="course.EndNotification" /> <!-- @onfocus="ScrollToView" --> <!-- UNCOMMENT THIS if decided to use JS Window Scroll function instead of the CSS only approach (CSS currently implemented) -->
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="keyboard-padding"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int TermId { get; set; }
+
+    private Course course = new Course();
+    private List<string> courseStatuses = new List<string>();
+
+    // Property to handle status display name conversion
+    private string selectedStatusDisplay
+    {
+        get => course.Status.GetDisplayName();
+        set
+        {
+            course.Status = Enum.GetValues(typeof(Course.StatusType))
+                .Cast<Course.StatusType>()
+                .FirstOrDefault(x => x.GetDisplayName() == value);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Initialize default values
+        course.TermId = TermId;
+        course.StartDate = DateTime.Today;
+        course.EndDate = DateTime.Today.AddMonths(3); // Default to 3 months
+        course.StartNotification = true;
+        course.EndNotification = true;
+
+        // Initialize status types from the enum
+        courseStatuses = Enum.GetValues(typeof(Course.StatusType))
+            .Cast<Course.StatusType>()
+            .Select(x => x.GetDisplayName())
+            .ToList();
+
+        // Skip the "None" status in the UI options
+        if (courseStatuses.Count > 0 && courseStatuses[0] == Course.StatusType.None.GetDisplayName())
+        {
+            courseStatuses.RemoveAt(0);
+        }
+    }
+
+    /*
+     * UNCOMMENT THIS if decided to use JS Window Scroll function instead of the CSS only approach (CSS currently implemented)
+     */
+    // private async Task ScrollToView(FocusEventArgs args)
+    // {
+    //     await JSRuntime.InvokeVoidAsync("scrollInputIntoView");
+    // }
+
+    private async Task SaveCourse_Clicked()
+    {
+        var today = DateTime.Today;
+        Term term = await DatabaseService.GetTermByIdAsync(TermId);
+
+        if (string.IsNullOrWhiteSpace(course.Name))
+        {
+            await DialogService.DisplayAlert("Course Name", "Course name cannot be blank.", "OK");
+            return;
+        }
+
+        if (term == null)
+        {
+            await DialogService.DisplayAlert("Term Error", "Associated term could not be found.", "OK");
+            return;
+        }
+
+        if (course.StartDate > course.EndDate)
+        {
+            await DialogService.DisplayAlert(
+                "Date Range Error",
+                "The selected course start date must be before the selected end date.",
+                "OK"
+            );
+            return;
+        }
+
+        if (course.StartDate < term.StartDate || course.EndDate > term.EndDate)
+        {
+            await DialogService.DisplayAlert(
+                "Date Range Error",
+                $"The course must start and end between {term.StartDate:d} & {term.EndDate:d}.",
+                "OK"
+            );
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(course.InstructorName))
+        {
+            await DialogService.DisplayAlert("Missing Information", "The instructor name field cannot be left blank.", "OK");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(course.InstructorPhone))
+        {
+            await DialogService.DisplayAlert("Missing Phone", "The instructor's phone field cannot be left blank.", "OK");
+            return;
+        }
+
+        var usPhoneRegex = "^(?:\\+1|1)?[-. ]?\\(?([0-9]{3})\\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$";
+        if (!Regex.IsMatch(course.InstructorPhone, usPhoneRegex))
+        {
+            await DialogService.DisplayAlert("Invalid Phone", "Please enter a valid US phone number - e.g. (555) 123-4567.", "OK");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(course.InstructorEmail))
+        {
+            await DialogService.DisplayAlert("Missing Email", "The instructor's email field cannot be left blank.", "OK");
+            return;
+        }
+
+        var emailRegex = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+        if (!Regex.IsMatch(course.InstructorEmail, emailRegex))
+        {
+            await DialogService.DisplayAlert("Invalid Email", "The instructor's email is invalid.", "OK");
+            return;
+        }
+
+        if (course.Status == Course.StatusType.None)
+        {
+            await DialogService.DisplayAlert("Missing Course Status", "The course status field cannot be left blank.", "OK");
+            return;
+        }
+
+        await DatabaseService.AddCourseAsync(course);
+        NavigationManager.NavigateTo($"/term/edit/{TermId}");
+    }
+
+    private void CancelCourse_Clicked()
+    {
+        NavigationManager.NavigateTo($"/term/edit/{TermId}");
+    }
+
+    private void Home_Clicked()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+}

@@ -1,0 +1,207 @@
+﻿.page-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.toolbar {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-bottom: 1px solid #ddd;
+}
+
+.toolbar-item {
+    padding: 8px 12px;
+    margin-left: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #0066cc;
+}
+
+    .toolbar-item:hover {
+        text-decoration: underline;
+    }
+
+.content-container {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.course-form-grid, .assessment-stats-grid {
+    background-color: whitesmoke;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: flex;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.form-label {
+    font-weight: bold;
+    font-size: 16px;
+    width: 150px;
+    margin-right: 20px;
+}
+
+.form-label-large {
+    font-weight: bold;
+    font-size: 20px;
+    width: 200px;
+    margin-right: 20px;
+}
+
+.form-control {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.notes-area {
+    height: 100px;
+    resize: vertical;
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 20px 0 10px 0;
+}
+
+.empty-list {
+    padding: 20px;
+    text-align: center;
+    background-color: #f8f8f8;
+    border-radius: 4px;
+    color: #666;
+}
+
+.assessment-collection {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.assessment-item {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: box-shadow 0.2s ease;
+}
+
+    .assessment-item:hover {
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+.assessment-grid {
+    background-color: whitesmoke;
+    padding: 12px;
+}
+
+.assessment-row {
+    display: flex;
+    margin-bottom: 8px;
+}
+
+.assessment-label {
+    font-weight: bold;
+    font-size: 16px;
+    width: 150px;
+    margin-right: 20px;
+}
+
+.assessment-value {
+    font-size: 16px;
+}
+
+.stat-value {
+    font-size: 16px;
+}
+
+button.btn {
+    padding: 10px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    border: none;
+}
+
+button.btn-primary {
+    background-color: #0066cc;
+    color: white;
+}
+
+button.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+button.btn:hover {
+    opacity: 0.9;
+}
+
+.mt-3 {
+    margin-top: 15px;
+}
+
+/* Custom switch styling */
+.switch-container {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+    margin-left: auto;
+}
+
+    .switch-container input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }

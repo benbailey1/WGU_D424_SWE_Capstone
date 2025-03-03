@@ -1,0 +1,388 @@
+﻿@page "/course/edit/{CourseId:int}"
+@using StudentTermTracker.Models
+@using StudentTermTracker.Services
+@using System.Text.RegularExpressions
+@inject NavigationManager NavigationManager
+@inject IDialogService DialogService
+@inject ShareService ShareService
+
+<div class="page-container">
+    <div class="toolbar">
+        <button class="toolbar-item" @onclick="SaveCourse_Clicked">Save</button>
+        <button class="toolbar-item" @onclick="CancelCourse_Clicked">Cancel</button>
+        <button class="toolbar-item" @onclick="DeleteCourse_Clicked">Delete</button>
+    </div>
+
+    <div class="content-container">
+        <div class="course-form-grid">
+            <div class="form-row">
+                <label class="form-label">ID</label>
+                <input type="text" @bind="course.Id" readonly class="form-control" />
+            </div>
+
+            <div class="form-row">
+                <label class="form-label">Name</label>
+                <input type="text" @bind="course.Name" class="form-control" />
+            </div>
+
+            <div class="form-row">
+                <label class="form-label">Start Date</label>
+                <input type="date" @bind="course.StartDate" @bind:format="yyyy-MM-dd" class="form-control" />
+            </div>
+
+            <div class="form-row">
+                <label class="form-label">End Date</label>
+                <input type="date" @bind="course.EndDate" @bind:format="yyyy-MM-dd" class="form-control" />
+            </div>
+
+            <div class="form-row">
+                <label class="form-label">Instructor Name</label>
+                <input type="text" @bind="course.InstructorName" class="form-control" />
+            </div>
+
+            <div class="form-row">
+                <label class="form-label">Instructor Phone</label>
+                <input type="text" @bind="course.InstructorPhone" class="form-control" />
+            </div>
+
+            <div class="form-row">
+                <label class="form-label">Instructor Email</label>
+                <input type="text" @bind="course.InstructorEmail" class="form-control" />
+            </div>
+
+            <div class="form-row">
+                <label class="form-label">Course Status</label>
+                <select @bind="selectedStatusDisplay" class="form-control">
+                    <option value="">-- Select Status --</option>
+                    @foreach (var status in courseStatuses)
+                    {
+                        <option value="@status">@status</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-row">
+                <label class="form-label">Notify At Start Date</label>
+                <label class="switch-container">
+                    <input type="checkbox" @bind="startNotification" />
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="form-row">
+                <label class="form-label">Notify at End Date</label>
+                <label class="switch-container">
+                    <input type="checkbox" @bind="endNotification" />
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="form-row">
+                <label class="form-label">Notes</label>
+                <textarea @bind="notes" class="form-control notes-area" placeholder="Enter Notes here."></textarea>
+            </div>
+
+            <div class="form-row">
+                <label class="form-label">Share</label>
+                <button class="btn btn-secondary" @onclick="ShareButton_Clicked">Share</button>
+                <button class="btn btn-secondary" @onclick="ShareUri_Clicked">Share Url</button>
+            </div>
+        </div>
+
+        <div class="assessment-stats-grid">
+            <div class="form-row">
+                <label class="form-label-large">Assessment Count</label>
+                <span class="stat-value">@assessmentCount</span>
+            </div>
+
+            <div class="form-row">
+                <label class="form-label">Objective Assessment</label>
+                <span class="stat-value">@objectiveCount</span>
+            </div>
+
+            <div class="form-row">
+                <label class="form-label">Performance Assessment</label>
+                <span class="stat-value">@performanceCount</span>
+            </div>
+        </div>
+
+        <h3 class="section-title">Assessment List</h3>
+
+        @if (assessments == null || !assessments.Any())
+        {
+            <div class="empty-list">No Assessments Associated With This Course. Add One Below.</div>
+        }
+        else
+        {
+            <div class="assessment-collection">
+                @foreach (var assessment in assessments)
+                {
+                    <div class="assessment-item" @onclick="() => AssessmentCollectionView_SelectionChanged(assessment)">
+                        <div class="assessment-grid">
+                            <div class="assessment-row">
+                                <div class="assessment-label">Name</div>
+                                <div class="assessment-value">@assessment.Name</div>
+                            </div>
+                            <div class="assessment-row">
+                                <div class="assessment-label">Start Date</div>
+                                <div class="assessment-value">@assessment.StartDate.ToString("MM/dd/yyyy")</div>
+                            </div>
+                            <div class="assessment-row">
+                                <div class="assessment-label">End Date</div>
+                                <div class="assessment-value">@assessment.EndDate.ToString("MM/dd/yyyy")</div>
+                            </div>
+                            <div class="assessment-row">
+                                <div class="assessment-label">Assessment Type</div>
+                                <div class="assessment-value">@assessment.Type</div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+        <button class="btn btn-primary mt-3" @onclick="AddAssessment_Clicked">Add Assessment</button>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int CourseId { get; set; }
+
+    private Course course = new Course();
+    private int termId;
+    private IEnumerable<Assessment> assessments;
+    private List<string> courseStatuses = new List<string>();
+    private string notes;
+    private bool startNotification = true;
+    private bool endNotification = true;
+    private int assessmentCount = 0;
+    private int objectiveCount = 0;
+    private int performanceCount = 0;
+
+    private string selectedStatusDisplay
+    {
+        get => course.Status.GetDisplayName();
+        set
+        {
+            course.Status = Enum.GetValues(typeof(Course.StatusType))
+                .Cast<Course.StatusType>()
+                .FirstOrDefault(x => x.GetDisplayName() == value);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Initialize status types from the enum
+        courseStatuses = Enum.GetValues(typeof(Course.StatusType))
+            .Cast<Course.StatusType>()
+            .Select(x => x.GetDisplayName())
+            .ToList();
+
+        // Skip the "None" status in the UI options    
+        if (courseStatuses.Count > 0 && courseStatuses[0] == Course.StatusType.None.GetDisplayName())
+        {
+            courseStatuses.RemoveAt(0);
+        }
+
+        await LoadCourseData();
+        await RefreshAssessmentCounts();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await RefreshAssessmentCounts();
+        }
+    }
+
+    private async Task LoadCourseData()
+    {
+        course = await DatabaseService.GetCourseByIdAsync(CourseId);
+        termId = course.TermId;
+        notes = course.Notes;
+
+        startNotification = course.StartNotification;
+        endNotification = course.EndNotification;
+    }
+
+    private async Task RefreshAssessmentCounts()
+    {
+        assessments = await DatabaseService.GetAssessmentsForCourseAsync(CourseId);
+
+        assessmentCount = assessments.Count();
+        objectiveCount = assessments.Where(a => a.Type == Assessment.AssessmentType.Objective).Count();
+        performanceCount = assessments.Where(a => a.Type == Assessment.AssessmentType.Performance).Count();
+    }
+
+    private async Task SaveCourse_Clicked()
+    {
+        var today = DateTime.Today;
+        Term term = await DatabaseService.GetTermByIdAsync(termId);
+
+        if (string.IsNullOrWhiteSpace(course.Name))
+        {
+            await DialogService.DisplayAlert("Course Name", "Course name cannot be blank.", "OK");
+            return;
+        }
+
+        if (term == null)
+        {
+            await DialogService.DisplayAlert("Term Error", "Associated term could not be found.", "OK");
+            return;
+        }
+
+        if (course.StartDate > course.EndDate)
+        {
+            await DialogService.DisplayAlert("Date Range Error", "The course start date must be before the selected end date.", "OK");
+            return;
+        }
+
+        if (course.StartDate < term.StartDate || course.EndDate > term.EndDate)
+        {
+            await DialogService.DisplayAlert(
+                "Date Range Error",
+                $"The course must start and end between {term.StartDate:d} & {term.EndDate:d}.",
+                "OK"
+            );
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(course.InstructorName))
+        {
+            await DialogService.DisplayAlert("Missing Information", "The instructor name field cannot be left blank.", "OK");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(course.InstructorPhone))
+        {
+            await DialogService.DisplayAlert("Missing Phone", "The instructor's phone field cannot be left blank.", "OK");
+            return;
+        }
+
+        var usPhoneRegex = "^(?:\\+1|1)?[-. ]?\\(?([0-9]{3})\\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$";
+        if (!Regex.IsMatch(course.InstructorPhone, usPhoneRegex))
+        {
+            await DialogService.DisplayAlert("Invalid Phone", "Please enter a valid US phone number - e.g. (555) 123-4567.", "OK");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(course.InstructorEmail))
+        {
+            await DialogService.DisplayAlert("Missing Email", "The instructor's email field cannot be left blank.", "OK");
+            return;
+        }
+
+        var emailRegex = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+        if (!Regex.IsMatch(course.InstructorEmail, emailRegex))
+        {
+            await DialogService.DisplayAlert("Invalid Email", "The instructor's email is invalid.", "OK");
+            return;
+        }
+
+        if (course.Status == Course.StatusType.None)
+        {
+            await DialogService.DisplayAlert("Missing Course Status", "The course status field cannot be left blank.", "OK");
+            return;
+        }
+
+        course.StartNotification = startNotification;
+        course.EndNotification = endNotification;
+        course.Notes = notes;
+
+        await DatabaseService.UpdateCourseAsync(course);
+        NavigationManager.NavigateTo($"/term/edit/{termId}");
+    }
+
+    private void CancelCourse_Clicked()
+    {
+        NavigationManager.NavigateTo($"/term/edit/{termId}");
+    }
+
+    private async Task DeleteCourse_Clicked()
+    {
+        var confirmDelete = await DialogService.DisplayAlert(
+            "Confirm Delete?",
+            "Are you sure you want to delete this course? This cannot be undone.",
+            "Yes",
+            "No"
+        );
+
+        if (confirmDelete)
+        {
+            await DatabaseService.DeleteCourseAsync(CourseId);
+            await DialogService.DisplayAlert("Success", "Course Deleted Successfully", "OK");
+            NavigationManager.NavigateTo($"/term/edit/{termId}");
+        }
+    }
+
+    private async Task AddAssessment_Clicked()
+    {
+        var assessments = await DatabaseService.GetAssessmentsForCourseAsync(CourseId);
+        var oACount = assessments.Where(a => a.Type == Assessment.AssessmentType.Objective).Count();
+        var pACount = assessments.Where(a => a.Type == Assessment.AssessmentType.Performance).Count();
+
+        // TODO: In Blazor we'll need a different approach for ActionSheet
+        // for now, we'll use a dialog to choose assessment type
+        bool isObjective = await DialogService.DisplayAlert(
+            "Select Assessment Type",
+            "Choose the type of assessment to add",
+            "Objective",
+            "Performance"
+        );
+
+        if (isObjective)
+        {
+            if (oACount >= 1)
+            {
+                await DialogService.DisplayAlert(
+                    "Limit Reached",
+                    "You already have one Objective Assessment for this course. Only one is allowed.",
+                    "OK"
+                );
+                return;
+            }
+            NavigationManager.NavigateTo($"/assessment/add/{CourseId}/Objective");
+        }
+        else
+        {
+            if (pACount >= 1)
+            {
+                await DialogService.DisplayAlert(
+                    "Limit Reached",
+                    "You already have one Performance Assessment for this course. Only one is allowed.",
+                    "OK"
+                );
+                return;
+            }
+            NavigationManager.NavigateTo($"/assessment/add/{CourseId}/Performance");
+        }
+    }
+
+    private void AssessmentCollectionView_SelectionChanged(Assessment assessment)
+    {
+        NavigationManager.NavigateTo($"/assessment/edit/{assessment.Id}");
+    }
+
+    private async Task ShareButton_Clicked()
+    {
+        await ShareService.RequestAsync(new ShareTextRequest
+            {
+                Text = course.Name,
+                Title = "Course Details"
+            });
+    }
+
+    private async Task ShareUri_Clicked()
+    {
+        await ShareService.RequestAsync(new ShareTextRequest
+            {
+                Uri = "https://www.wgu.edu",
+                Title = "Share Web Link"
+            });
+    }
+
+
+
+}
