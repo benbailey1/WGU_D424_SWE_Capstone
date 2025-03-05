@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StudentTermTracker.Services
+﻿namespace StudentTermTracker.Services
 {
     public class DialogService : IDialogService
     {
@@ -17,6 +11,11 @@ namespace StudentTermTracker.Services
             }
 
             return await Application.Current.MainPage.DisplayAlert(title, message, accept, cancel);
+        }
+
+        public async Task DisplayAlertAsync(string title, string message, string cancel)
+        {
+            await Application.Current.MainPage.DisplayAlert(title, message, cancel);
         }
     }
 }

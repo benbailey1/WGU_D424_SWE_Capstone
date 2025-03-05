@@ -7,10 +7,10 @@
 @inject ShareService ShareService
 
 <div class="page-container">
-    <div class="toolbar">
-        <button class="toolbar-item" @onclick="SaveCourse_Clicked">Save</button>
-        <button class="toolbar-item" @onclick="CancelCourse_Clicked">Cancel</button>
-        <button class="toolbar-item" @onclick="DeleteCourse_Clicked">Delete</button>
+    <div class="toolbar-container">
+        <button class="btn btn-primary" @onclick="SaveCourse_Clicked">Save</button>
+        <button class="btn btn-secondary" @onclick="CancelCourse_Clicked">Cancel</button>
+        <button class="btn btn-danger" @onclick="DeleteCourse_Clicked">Delete</button>
     </div>
 
     <div class="content-container">

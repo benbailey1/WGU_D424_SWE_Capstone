@@ -6,12 +6,19 @@
     margin: 0;
 }
 
-.toolbar {
+/*.toolbar {
     display: flex;
     justify-content: flex-end;
     padding: 10px;
     background-color: #f0f0f0;
     border-bottom: 1px solid #ddd;
+}*/
+
+.toolbar-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-bottom: 20px;
 }
 
 .toolbar-item {

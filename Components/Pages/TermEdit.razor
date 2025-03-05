@@ -5,10 +5,10 @@
 @inject IDialogService DialogService
 
 <div class="page-container">
-    <div class="toolbar">
-        <button class="toolbar-item" @onclick="SaveTerm_Clicked">Save</button>
-        <button class="toolbar-item" @onclick="CancelTerm_Clicked">Cancel</button>
-        <button class="toolbar-item" @onclick="DeleteTerm_Clicked">Delete</button>
+    <div class="toolbar-container">
+        <button class="btn btn-primary" @onclick="SaveTerm_Clicked">Save</button>
+        <button class="btn btn-secondary" @onclick="CancelTerm_Clicked">Cancel</button>
+        <button class="btn btn-danger" @onclick="DeleteTerm_Clicked">Delete</button>
     </div>
 
     <div class="content-container">

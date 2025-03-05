@@ -170,6 +170,11 @@ namespace StudentTermTracker.Services
             return await _dbConn.Table<Assessment>().ToListAsync();
         }
 
+        public static async Task<Assessment> GetAssessmentByIdAsync(int assessmentId)
+        {
+            return await _dbConn.Table<Assessment>().Where(a => a.Id == assessmentId).FirstOrDefaultAsync();
+        }
+
         public static async Task<IEnumerable<Assessment>> GetAssessmentsForCourseAsync(int courseId)
         {
             return await _dbConn.Table<Assessment>().Where(a => a.CourseId == courseId).ToListAsync();

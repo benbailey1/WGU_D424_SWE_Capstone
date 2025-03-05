@@ -1,0 +1,131 @@
+﻿@page "/assessment/add/{CourseId:int}/{SelectedAssessmentType}"
+@using StudentTermTracker.Models;
+@using StudentTermTracker.Services
+@inject NavigationManager NavigationManager
+@inject IDialogService DialogService
+
+<h3>Add New Assessment</h3>
+
+<div class="toolbar-container">
+    <button @onclick="SaveAssessment_Clicked" class="btn btn-primary">Save</button>
+    <button @onclick="CancelAssessment_Clicked" class="btn btn-secondary">Cancel</button>
+</div>
+
+<div class="form-container">
+    <div class="assessment-form">
+        <div class="form-group">
+            <label class="form-label">Name</label>
+            <input type="text" @bind="assessmentName" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Start Date</label>
+            <input type="date" @bind="startDate" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">End Date</label>
+            <input type="date" @bind="endDate" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Assessment Type</label>
+            <select @bind="assessmentTypeString" class="form-select" disabled>
+                <option value="Objective">Objective</option>
+                <option value="Performance">Performance</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-check-label">
+                <input type="checkbox" @bind="startNotification" class="form-check-input" />
+                Notify at Start Date
+            </label>
+        </div>
+
+        <div class="form-group">
+            <label class="form-check-label">
+                <input type="checkbox" @bind="endNotification" class="form-check-input" />
+                Notify at End Date
+            </label>
+        </div>
+    </div>
+</div>
+
+
+@code {
+
+    [Parameter]
+    public int CourseId { get; set; }
+
+    [Parameter]
+    public string SelectedAssessmentType { get; set; }
+
+    private string assessmentName;
+    private DateTime startDate = DateTime.Today;
+    private DateTime endDate = DateTime.Today.AddDays(7);
+    private string assessmentTypeString;
+    private bool startNotification = true;
+    private bool endNotification = true;
+
+    protected override void OnInitialized()
+    {
+        assessmentTypeString = SelectedAssessmentType;
+    }
+
+    private async Task SaveAssessment_Clicked()
+    {
+        Course associatedCourse = await DatabaseService.GetCourseByIdAsync(CourseId);
+
+        if (string.IsNullOrWhiteSpace(assessmentName))
+        {
+            await DialogService.DisplayAlertAsync("Validation Error", "Please enter a name for the assessment.", "OK");
+            return;
+        }
+
+        if (associatedCourse == null)
+        {
+            await DialogService.DisplayAlertAsync("Error", "Associated course could not be found. Please try again later.", "OK");
+            return;
+        }
+
+        if (startDate > endDate)
+        {
+            await DialogService.DisplayAlertAsync("Invalid Start & End Date Range", "The assessment must begin before the selected end date.", "OK");
+            return;
+        }
+
+        if (startDate < associatedCourse.StartDate || endDate > associatedCourse.EndDate)
+        {
+            await DialogService.DisplayAlertAsync(
+                "Invalid Dates",
+                $"The assessment dates must be between {associatedCourse.StartDate:d} and {associatedCourse.EndDate:d}.",
+                "OK");
+            return;
+        }
+
+        Assessment.AssessmentType parsedType;
+        Enum.TryParse(assessmentTypeString, out parsedType);
+
+        Assessment newAssessment = new Assessment
+            {
+                CourseId = CourseId,
+                Name = assessmentName,
+                StartDate = startDate,
+                EndDate = endDate,
+                Type = parsedType,
+                StartNotification = startNotification,
+                EndNotification = endNotification,
+            };
+
+        await DatabaseService.AddAssessmentAsync(newAssessment);
+
+        NavigationManager.NavigateTo($"/course/details/{CourseId}");
+    }
+
+    private void CancelAssessment_Clicked()
+    {
+        NavigationManager.NavigateTo($"/course/details/{CourseId}");
+    }
+
+}

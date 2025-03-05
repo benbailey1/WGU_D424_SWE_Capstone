@@ -1,0 +1,181 @@
+﻿@page "/assessment/edit/{AssessmentId:int}"
+@using StudentTermTracker.Models
+@using StudentTermTracker.Services
+@inject NavigationManager NavigationManager
+@inject IDialogService DialogService
+
+<h3>Edit Assessment</h3>
+
+<div class="toolbar-container">
+    <button @onclick="SaveAssessment_Clicked" class="btn btn-primary">Save</button>
+    <button @onclick="CancelAssessment_Clicked" class="btn btn-secondary">Cancel</button>
+    <button @onclick="DeleteAssessment_Clicked" class="btn btn-danger">Delete</button>
+</div>
+
+<div class="form-container">
+    <div class="assessment-form">
+        <div class="form-group">
+            <label class="form-label">Name</label>
+            <input type="text" @bind="assessment.Name" class="form-control" placeholder="Enter Assessment Name" />
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Start Date</label>
+            <input type="date" @bind="assessment.StartDate" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">End Date</label>
+            <input type="date" @bind="assessment.EndDate" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Assessment Type</label>
+            <select @bind="assessmentTypeString" class="form-select">
+                <option value="Objective">Objective</option>
+                <option value="Performance">Performance</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-check-label">
+                <input type="checkbox" @bind="assessment.StartNotification" class="form-check-input" />
+                Notify at Start Date
+            </label>
+        </div>
+
+        <div class="form-group">
+            <label class="form-check-label">
+                <input type="checkbox" @bind="assessment.EndNotification" class="form-check-input" />
+                Notify at End Date
+            </label>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public int AssessmentId { get; set; }
+
+    private Assessment assessment = new Assessment();
+    private string assessmentTypeString;
+    private int courseId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Load the assessment data
+        assessment = await DatabaseService.GetAssessmentByIdAsync(AssessmentId);
+
+        if (assessment != null)
+        {
+            courseId = assessment.CourseId;
+            assessmentTypeString = assessment.Type.ToString();
+        }
+        else
+        {
+            await DialogService.DisplayAlertAsync("Error", "Assessment not found", "OK");
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
+    private async Task SaveAssessment_Clicked()
+    {
+        Course associatedCourse = await DatabaseService.GetCourseByIdAsync(courseId);
+
+        if (string.IsNullOrWhiteSpace(assessment.Name))
+        {
+            await DialogService.DisplayAlertAsync("Validation Error", "Please enter a name for the assessment.", "OK");
+            return;
+        }
+
+        if (associatedCourse == null)
+        {
+            await DialogService.DisplayAlertAsync("Error", "Associated course could not be found. Please try again later.", "OK");
+            return;
+        }
+
+        if (assessment.StartDate > assessment.EndDate)
+        {
+            await DialogService.DisplayAlertAsync("Invalid Start & End Date Range", "The assessment must begin before the selected end date.", "OK");
+            return;
+        }
+
+        if (assessment.StartDate < associatedCourse.StartDate || assessment.EndDate > associatedCourse.EndDate)
+        {
+            await DialogService.DisplayAlertAsync(
+                "Invalid Dates",
+                $"The assessment dates must be between {associatedCourse.StartDate:d} and {associatedCourse.EndDate:d}.",
+                "OK");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(assessmentTypeString))
+        {
+            await DialogService.DisplayAlertAsync("Assessment Type Required", "Please select an assessment type.", "OK");
+            return;
+        }
+
+        if (!Enum.TryParse(assessmentTypeString, out Assessment.AssessmentType selectedType))
+        {
+            await DialogService.DisplayAlertAsync("Error", "Invalid Assessment Type Selected.", "OK");
+            return;
+        }
+
+        var courseAssessments = await DatabaseService.GetAssessmentsForCourseAsync(courseId);
+
+        if (selectedType == Assessment.AssessmentType.Objective)
+        {
+            int objectiveCount = courseAssessments.Count(a => a.Type == Assessment.AssessmentType.Objective
+                                                && a.Id != AssessmentId);
+            if (objectiveCount >= 1)
+            {
+                await DialogService.DisplayAlertAsync("Invalid Assessment Type",
+                    "There is already an existing Objective Assessment associated with this course.", "OK");
+                return;
+            }
+        }
+        else if (selectedType == Assessment.AssessmentType.Performance)
+        {
+            int performanceCount = courseAssessments.Count(a => a.Type == Assessment.AssessmentType.Performance
+                                                    && a.Id != AssessmentId);
+
+            if (performanceCount >= 1)
+            {
+                await DialogService.DisplayAlertAsync("Invalid Assessment Type",
+                    "There is already an existing Performance Assessment associated with this course.", "OK");
+                return;
+            }
+        }
+
+        // Update assessment with selected type
+        assessment.Type = selectedType;
+
+        await DatabaseService.UpdateAssessmentAsync(assessment);
+
+        NavigationManager.NavigateTo($"/course/edit/{courseId}");
+    }
+
+    private async Task DeleteAssessment_Clicked()
+    {
+        bool confirmDelete = await DialogService.DisplayAlert(
+            "Confirm Delete?",
+            "Are you sure you want to delete this assessment? This cannot be undone.",
+            "Yes",
+            "No");
+
+        if (confirmDelete)
+        {
+            await DatabaseService.DeleteAssessmentAsync(AssessmentId);
+
+            await DialogService.DisplayAlertAsync("Success", "Assessment Deleted Successfully", "OK");
+
+            NavigationManager.NavigateTo($"/course/edit/{courseId}");
+        }
+    }
+
+    private void CancelAssessment_Clicked()
+    {
+        NavigationManager.NavigateTo($"/course/edit/{courseId}");
+    }
+}
