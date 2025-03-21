@@ -58,6 +58,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Azure.Data.Tables" Version="12.10.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="8.0.13" />
+        <PackageReference Include="Microsoft.Extensions.Azure" Version="1.10.0" />
+        <PackageReference Include="Microsoft.Identity.Client" Version="4.69.1" />
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
