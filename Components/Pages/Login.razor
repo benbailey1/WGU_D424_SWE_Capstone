@@ -1,0 +1,49 @@
+﻿@page "/login"
+@using StudentTermTracker.Services
+@using StudentTermTracker.Models
+@inject IAuthService AuthService
+@inject IUserDataService UserDataService
+@inject NavigationManager NavigationManager
+
+<h3>Login</h3>
+
+<div class="login-container">
+    <button @onclick="HandleLogin_Clicked">
+        Sign in with Microsoft Account
+    </button>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger mt-3">
+            @errorMessage
+        </div>
+    }
+
+</div>
+
+
+@code {
+    private string errorMessage;
+    private async Task HandleLogin_Clicked(MouseEventArgs e)
+    {
+        try
+        {
+
+            var result = await AuthService.SignInAsync();
+
+            // create or update user in database
+            var userId = await AuthService.GetUserIdAsync();
+            var email = await AuthService.GetUserEmailAsync();
+            var name = await AuthService.GetUserNameAsync();
+
+            var user = new User(userId, email, name);
+            await UserDataService.CreateOrUpdateUserAsync(user);
+
+            NavigationManager.NavigateTo("/terms");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Login failed {ex.Message}";
+        }
+    }
+}

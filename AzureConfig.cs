@@ -8,9 +8,9 @@ namespace StudentTermTracker
 {
     public static class AzureConfig
     {
-        public const string ClientId = "TODO: Get from azure app registration";
-        public const string TenantId = "TODO: Get tenant id from azure ad";
-        public const string StorageConnectionString = "TODO: Get storage account connection string from Az Storage account";
+        public const string ClientId = "InsertClientId";
+        public const string TenantId = "InsertTenantId";
+        public const string StorageConnectionString = "InsertConnectionString";
         public const string TableName = "Users";
     }
 }

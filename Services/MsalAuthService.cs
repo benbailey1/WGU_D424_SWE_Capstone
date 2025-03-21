@@ -1,10 +1,8 @@
 ﻿using Microsoft.Identity.Client;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+#if ANDROID
+using Android.App;
+#endif
 
 namespace StudentTermTracker.Services
 {
@@ -16,6 +14,7 @@ namespace StudentTermTracker.Services
         Task<string> GetUserEmailAsync();
         Task<string> GetUserIdAsync();
         Task<string> GetUserNameAsync();
+        
     }
     public class MsalAuthService : IAuthService
     {
@@ -23,13 +22,33 @@ namespace StudentTermTracker.Services
         private readonly string[] _scopes = { "User.Read" };
         private IAccount _account;
 
+#if ANDROID
+        private Android.App.Activity _currentActivity;
+#endif
+
+#if ANDROID
+        public MsalAuthService(Android.App.Activity currentActivity = null)
+#else
         public MsalAuthService()
+#endif
         {
-            _pca = PublicClientApplicationBuilder
+#if ANDROID
+        _currentActivity = currentActivity;
+#endif
+
+            var builder = PublicClientApplicationBuilder
                 .Create(AzureConfig.ClientId)
                 .WithAuthority($"https://login.microsoftonline.com/{AzureConfig.TenantId}")
-                .WithRedirectUri("msal1c1861e0-e669-4ecb-8c1e-0fb6fa932d3a://auth")
-                .Build();
+                .WithRedirectUri($"msal{AzureConfig.ClientId}://auth");
+
+#if ANDROID
+        if (_currentActivity != null)
+        {
+            builder = builder.WithParentActivityOrWindow(() => _currentActivity);
+        }
+#endif
+
+            _pca = builder.Build();
         }
         public async Task<AuthenticationResult> SignInAsync()
         {
@@ -58,24 +77,28 @@ namespace StudentTermTracker.Services
             }
         }
 
-        public Task<string> GetUserIdAsync()
+        public async Task<string> GetUserIdAsync()
         {
-            throw new NotImplementedException();
+            var result = await SignInAsync();
+            return result.UniqueId;
         }
 
-        public Task<string> GetUserNameAsync()
+        public async Task<string> GetUserNameAsync()
         {
-            throw new NotImplementedException();
+            var result = await SignInAsync();
+            return result.ClaimsPrincipal.FindFirst("name")?.Value ?? "Unknown User";
         }
 
-        public Task<bool> IsAuthenticatedAsync()
+        public async Task<bool> IsAuthenticatedAsync()
         {
-            throw new NotImplementedException();
+            var accounts = await _pca.GetAccountsAsync();
+            return accounts.Any();
         }
 
-        public Task<AuthenticationResult> GetUserEmailAsync()
+        public async Task<string> GetUserEmailAsync()
         {
-            throw new NotImplementedException();
+            var result = await SignInAsync();
+            return result.ClaimsPrincipal.FindFirst("preferred_username")?.Value ?? result.Account?.Username ?? "unknown@email.com";
         }
 
         public async Task SignOutAsync()
@@ -89,5 +112,6 @@ namespace StudentTermTracker.Services
 
             _account = null;
         }
+
     }
 }

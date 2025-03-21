@@ -1,10 +1,5 @@
 ﻿using Azure;
 using Azure.Data.Tables;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StudentTermTracker.Models
 {
@@ -15,10 +10,10 @@ namespace StudentTermTracker.Models
         public string DisplayName { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        public string PartitionKey { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string RowKey { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public DateTimeOffset? Timestamp { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public ETag ETag { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string PartitionKey { get; set; }
+        public string RowKey { get; set; }
+        public DateTimeOffset? Timestamp { get; set; }
+        public ETag ETag { get; set; }
 
         public User()
         {
@@ -27,9 +22,9 @@ namespace StudentTermTracker.Models
 
         public User(string userId, string email, string displayName)
         {
-            Id = userId;
-            Email = email;
-            DisplayName = displayName;
+            Id = userId ?? throw new ArgumentNullException(nameof(userId));
+            Email = email ?? "unknown@email.com";
+            DisplayName = displayName ?? "Unknown User";
             CreatedAt = DateTime.UtcNow;
 
             // Set partition key and row key for Table storage

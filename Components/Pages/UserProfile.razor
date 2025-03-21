@@ -1,0 +1,68 @@
+﻿@page "/profile"
+@using StudentTermTracker.Models
+@using StudentTermTracker.Services
+@inject IAuthService AuthService
+@inject IUserDataService UserDataService
+@inject NavigationManager NavigationManager
+
+<h3>UserProfile</h3>
+
+@if (isLoading)
+{
+<p>Loading...</p>
+}
+else if (currentUser == null)
+{
+    <p>Please <a href="/login">login</a> to view your profile.</p>
+
+    <button class="btn btn-danger" @onclick="HandleLogin">Sign Out</button>
+}
+else
+{
+    <div class="user-profile">
+        <p>Email: @currentUser.Email</p>
+        <p>Display Name: @currentUser.DisplayName</p>
+        <p>Created: @currentUser.CreatedAt.ToString("g")</p>
+    </div>
+
+    <button class="btn btn-danger" @onclick="HandleLogout">Sign Out</button>
+}
+
+@code {
+    private User currentUser;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+
+        try
+        {
+            if (await AuthService.IsAuthenticatedAsync())
+            {
+                var userId = await AuthService.GetUserIdAsync();
+                currentUser = await UserDataService.GetUserAsync(userId);
+                isLoading = false;
+            }
+        }
+        catch (Exception ex)
+        {
+
+            throw;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+    private async Task HandleLogout(MouseEventArgs e)
+    {
+        await AuthService.SignOutAsync();
+        NavigationManager.NavigateTo("/login");
+    }
+
+    private void HandleLogin(MouseEventArgs e)
+    {
+        NavigationManager.NavigateTo("/login");
+    }
+}
