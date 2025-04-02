@@ -1,5 +1,6 @@
 ﻿using Azure;
 using Azure.Data.Tables;
+using Microsoft.Extensions.Configuration;
 using StudentTermTracker.Models;
 using System.Diagnostics;
 
@@ -16,11 +17,19 @@ namespace StudentTermTracker.Services
     {
         private readonly TableClient _tableClient;
 
-        public AzureTableUserService()
+        public AzureTableUserService(IConfiguration configuration)
         {
+
+            string connectionString = AzureConfig.StorageConnectionString;
+            string tableName = AzureConfig.TableName;
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new InvalidOperationException("DB Connection String not properly configured...");
+            }
+
             _tableClient = new TableClient(
-                AzureConfig.StorageConnectionString,
-                AzureConfig.TableName);
+                connectionString,
+                tableName);
 
             // Create table if it doesn't exist. TODO: Should this be moved to startup? 
             _tableClient.CreateIfNotExists();

@@ -64,7 +64,7 @@ namespace StudentTermTracker.Services
                 }
 
                 var result = await _pca.AcquireTokenInteractive(_scopes)
-                    .WithUseEmbeddedWebView(true)
+                    //.WithUseEmbeddedWebView(true)
                     .ExecuteAsync();
 
                 _account = result.Account;

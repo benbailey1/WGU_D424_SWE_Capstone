@@ -37,8 +37,8 @@
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
         <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
-        <UserSecretsId>05cd8400-d8cf-4cd7-9efa-92a622a2eab6</UserSecretsId>
-    </PropertyGroup>
+      <UserSecretsId>00e8c84c-5441-4fdd-b2e2-739eb2b008ba</UserSecretsId>
+  </PropertyGroup>
 
     <ItemGroup>
         <!-- App Icon -->
@@ -62,7 +62,6 @@
         <PackageReference Include="Azure.Data.Tables" Version="12.10.0" />
         <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="8.0.13" />
         <PackageReference Include="Microsoft.Extensions.Azure" Version="1.10.0" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
         <PackageReference Include="Microsoft.Identity.Client" Version="4.69.1" />
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />

@@ -1,5 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using StudentTermTracker.Services;
+
+using Microsoft.Extensions.Configuration;
+
 #if ANDROID
 using Android.App;
 #endif
@@ -21,7 +24,7 @@ namespace StudentTermTracker
             builder.Services.AddMauiBlazorWebView();
 
 #if DEBUG
-    		builder.Services.AddBlazorWebViewDeveloperTools();
+            builder.Services.AddBlazorWebViewDeveloperTools();
     		builder.Logging.AddDebug();
 #endif
             builder.Services.AddSingleton<IAuthService>(serviceProvider =>
