@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35431.28
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StudentTermTracker", "StudentTermTracker.csproj", "{9D95F40B-BF24-4F75-A251-7A102D111E0B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StudentTermTracker", "StudentTermTracker\StudentTermTracker.csproj", "{9D95F40B-BF24-4F75-A251-7A102D111E0B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudentTermTrackerApi", "..\StudentTermTrackerApi\StudentTermTrackerApi.csproj", "{A1D2B632-8AED-48C5-BEA4-4239C3EB7165}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudentTermTrackerAPI", "StudentTermTrackerAPI\StudentTermTrackerAPI.csproj", "{93EC039E-1C1A-42D3-9945-46771EA49B8F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,10 +19,10 @@ Global
 		{9D95F40B-BF24-4F75-A251-7A102D111E0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D95F40B-BF24-4F75-A251-7A102D111E0B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9D95F40B-BF24-4F75-A251-7A102D111E0B}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{A1D2B632-8AED-48C5-BEA4-4239C3EB7165}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A1D2B632-8AED-48C5-BEA4-4239C3EB7165}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A1D2B632-8AED-48C5-BEA4-4239C3EB7165}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A1D2B632-8AED-48C5-BEA4-4239C3EB7165}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93EC039E-1C1A-42D3-9945-46771EA49B8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93EC039E-1C1A-42D3-9945-46771EA49B8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93EC039E-1C1A-42D3-9945-46771EA49B8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93EC039E-1C1A-42D3-9945-46771EA49B8F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
