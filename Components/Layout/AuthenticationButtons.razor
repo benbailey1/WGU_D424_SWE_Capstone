@@ -1,0 +1,28 @@
+﻿@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.Identity.Client
+@using StudentTermTracker.Services
+
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<AuthorizeView>
+    <Authorized>
+        <input type="button" value="Sign Out" @onclick="SignOutUser" />
+    </Authorized>
+    <NotAuthorized>
+        <input type="button" value="Sign In" @onclick="SignInUser" />
+    </NotAuthorized>
+</AuthorizeView>
+@code {
+    private async Task SignInUser()
+    {
+        await ((ExternalAuthStateProvider)AuthenticationStateProvider).LogInAsync();
+    }
+
+    private async Task SignOutUser()
+    {
+        await ((ExternalAuthStateProvider)AuthenticationStateProvider).LogoutAsync();
+        NavigationManager.NavigateTo("/signedout");
+    }
+}

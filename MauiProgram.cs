@@ -2,6 +2,8 @@
 using StudentTermTracker.Services;
 
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.AspNetCore.Components.Authorization;
 
 #if ANDROID
 using Android.App;
@@ -27,21 +29,30 @@ namespace StudentTermTracker
             builder.Services.AddBlazorWebViewDeveloperTools();
     		builder.Logging.AddDebug();
 #endif
-            builder.Services.AddSingleton<IAuthService>(serviceProvider =>
+            //builder.Services.AddSingleton<IAuthService>(serviceProvider =>
+            //{
+            //#if ANDROID
+            //                var currentActivity = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity;
+            //                return new MsalAuthService(currentActivity);
+            //#else
+            //                return new MsalAuthService();
+            //#endif
+            //});
+
+            //builder.Services.AddAuthorizationCore();
+            builder.Services.AddAuthorizationCore(options =>
             {
-#if ANDROID
-                var currentActivity = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity;
-                return new MsalAuthService(currentActivity);
-#else
-                return new MsalAuthService();
-#endif
+                options.AddPolicy("ReadWeather", policy => policy.RequireClaim("roles", "Weather.Read"));
             });
+            builder.Services.AddCascadingAuthenticationState();
+            builder.Services.TryAddScoped<AuthenticationStateProvider, ExternalAuthStateProvider>();
             builder.Services.AddSingleton<IUserDataService, AzureTableUserService>();
-            builder.Services.AddAuthorizationCore();
+            
             builder.Services.AddScoped<IDialogService, DialogService>();
             builder.Services.AddScoped<ShareService>();
 
-            return builder.Build();
+            var host = builder.Build();
+            return host;
         }
     }
 }
