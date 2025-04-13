@@ -2,8 +2,12 @@
 using StudentTermTracker.Services;
 
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.AspNetCore.Components.Authorization;
+using AndroidX.Emoji2.Text.FlatBuffer;
+using Microsoft.Extensions.Http;
+
 
 #if ANDROID
 using Android.App;
@@ -24,6 +28,14 @@ namespace StudentTermTracker
                 });
 
             builder.Services.AddMauiBlazorWebView();
+
+            builder.Services.AddHttpClient("AppHttpClient", (client) =>
+            {
+                client.BaseAddress = new Uri(Constants.API_BASE_URL);
+            });
+            
+            builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();

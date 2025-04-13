@@ -1,49 +1,52 @@
 ﻿@page "/login"
 @using StudentTermTracker.Services
 @using StudentTermTracker.Models
-@inject IAuthService AuthService
+@inject IAuthenticationService AuthService
 @inject IUserDataService UserDataService
 @inject NavigationManager NavigationManager
 
-<h3>Login</h3>
 
-<div class="login-container">
-    <button @onclick="HandleLogin_Clicked">
-        Sign in with Microsoft Account
-    </button>
+<PageTitle>Login</PageTitle>
 
-    @if (!string.IsNullOrEmpty(errorMessage))
-    {
-        <div class="alert alert-danger mt-3">
-            @errorMessage
-        </div>
-    }
+<div class="login-container" style="padding: 20px; margin-top: 30px;">
+    <h3 style="text-align: center; margin-bottom: 10px;">Enter your credentials to login</h3>
+
+    <input @bind="userName"10px placeholder="Username" class="form-control" />
+
+    <input @bind="password" placeholder="Password" type="password" class="form-control" style="margin-bottom: 30px; " />
+
+    <button @onclick="HandleLogin_Clicked" class="btn btn-primary">Login</button>
+    <button @onclick="Register" class="btn btn-secondary" style="margin-top: 10px;">Create Account</button>
 
 </div>
 
 
 @code {
-    private string errorMessage;
-    private async Task HandleLogin_Clicked(MouseEventArgs e)
+    private string userName = string.Empty;
+    private string password = string.Empty;
+
+    private async Task HandleLogin_Clicked()
     {
-        try
+        if (string.IsNullOrWhiteSpace(userName) || string.IsNullOrWhiteSpace(password))
         {
-
-            var result = await AuthService.SignInAsync();
-
-            // create or update user in database
-            var userId = await AuthService.GetUserIdAsync();
-            var email = await AuthService.GetUserEmailAsync();
-            var name = await AuthService.GetUserNameAsync();
-
-            var user = new User(userId, email, name);
-            await UserDataService.CreateOrUpdateUserAsync(user);
-
-            NavigationManager.NavigateTo("/terms");
+            await Shell.Current.DisplayAlert("Login Failed", "Invalid User Name or Password", "OK");
+            return;
         }
-        catch (Exception ex)
+
+        var isAuthenticated = await AuthService.Authenticate(userName, password);
+        if (isAuthenticated)
         {
-            errorMessage = $"Login failed {ex.Message}";
+            await Shell.Current.GoToAsync("/terms");
+        }
+        else 
+        {
+            await Shell.Current.DisplayAlert("Login Failed", "Invalid User Name or Passowrd", "OK");
         }
     }
+
+    private async Task Register()
+    {
+        await Shell.Current.GoToAsync(nameof(Register));
+    }
+
 }
