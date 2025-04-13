@@ -6,13 +6,17 @@ namespace StudentTermTrackerAPI.Auth.Repositories
     public interface IUserAccountRepository
     {
         Task<List<UserAccount>> GetUserAccounts();
+        Task<UserAccount?> GetUserAccountById(int id);
+        Task CreateUserAccount(UserAccount userAccount);
+        Task UpdateUserAccount(UserAccount userAccount);
+        Task DeleteUserAccount(int id);
     }
 
     public class UserAccountRepository : IUserAccountRepository
     {
-        private readonly DatabaseConnectionService _dbConnService;
+        private readonly IDatabaseConnectionService _dbConnService;
         
-        public UserAccountRepository(DatabaseConnectionService dbConnService)
+        public UserAccountRepository(IDatabaseConnectionService dbConnService)
         {
             _dbConnService = dbConnService;
         }
@@ -31,7 +35,7 @@ namespace StudentTermTrackerAPI.Auth.Repositories
 
         public async Task CreateUserAccount(UserAccount userAccount)
         {
-            await _dbConnService.ExecuteAsync("INSERT INTO UserAccounts (FullName, UserName, Password) VALUES (@FullName, @UserName, @Password)", userAccount);
+            await _dbConnService.ExecuteAsync("INSERT INTO UserAccounts (FullName, UserName, Password) VALUES (@FullName, @UserName, @Password, @Role)", userAccount);
         }
 
         public async Task UpdateUserAccount(UserAccount userAccount)

@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using StudentTermTrackerAPI.Data;
 using StudentTermTrackerAPI.Auth.Services;
+using StudentTermTrackerAPI.Auth.Repositories;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,7 +40,12 @@ builder.Services.AddSwaggerGen(options =>
 // Register database connection service
 builder.Services.AddScoped<IDatabaseConnectionService, DatabaseConnectionService>();
 
-// Register JWT service
+// Register repositories
+builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
+
+// Register services
+builder.Services.AddScoped<IUserAccountService, UserAccountService>();
+
 builder.Services.AddScoped<JWTService>();
 
 // TODO: Database dep reg here

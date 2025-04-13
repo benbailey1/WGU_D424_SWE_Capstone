@@ -13,9 +13,9 @@ namespace StudentTermTrackerAPI.Auth.Controllers
     [Authorize]
     public class UserAccountController : ControllerBase
     {
-        private readonly UserAccountService _userAccountService;
+        private readonly IUserAccountService _userAccountService;
 
-        public UserAccountController(UserAccountService userAccountService)
+        public UserAccountController(IUserAccountService userAccountService)
         {
             _userAccountService = userAccountService;
         }
@@ -55,10 +55,10 @@ namespace StudentTermTrackerAPI.Auth.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost]
-        public async Task<ActionResult> Update([FromBody] UserAccount userAccount)
+        [HttpPut("{id}")]
+        public async Task<ActionResult> Update(int id, [FromBody] UserAccount userAccount)
         {
-            if (userAccount.Id == 0 ||
+            if (id != userAccount.Id ||
                 string.IsNullOrWhiteSpace(userAccount.FullName) ||
                 string.IsNullOrWhiteSpace(userAccount.UserName) ||
                 string.IsNullOrWhiteSpace(userAccount.Password))
@@ -70,7 +70,6 @@ namespace StudentTermTrackerAPI.Auth.Controllers
             await _userAccountService.UpdateUserAccount(userAccount);
 
             return Ok();
-
         } 
 
         // PUT api/<UserAccountController>/5

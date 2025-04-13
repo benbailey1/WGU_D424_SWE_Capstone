@@ -1,19 +1,22 @@
 using StudentTermTrackerAPI.Auth.Models;
 using StudentTermTrackerAPI.Auth.Repositories;
-using StudentTermTrackerAPI.Data;
 
 namespace StudentTermTrackerAPI.Auth.Services
 {
     public interface IUserAccountService
     {
         Task<List<UserAccount>> GetUserAccounts();
+        Task<UserAccount?> GetUserAccountById(int id);
+        Task CreateUserAccount(UserAccount userAccount);
+        Task UpdateUserAccount(UserAccount userAccount);
+        Task DeleteUserAccount(int id);
     }
 
     public class UserAccountService : IUserAccountService
     {
-        private readonly UserAccountRepository _userAccountRepo;
+        private readonly IUserAccountRepository _userAccountRepo;
         
-        public UserAccountService(UserAccountRepository userAccountRepo)
+        public UserAccountService(IUserAccountRepository userAccountRepo)
         {
             _userAccountRepo = userAccountRepo;
         }
@@ -30,6 +33,7 @@ namespace StudentTermTrackerAPI.Auth.Services
 
         public async Task CreateUserAccount(UserAccount userAccount)
         {
+            userAccount.Role = "User";
             await _userAccountRepo.CreateUserAccount(userAccount);
         }
 
