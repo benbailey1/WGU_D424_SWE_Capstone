@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using StudentTermTracker.Models;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace StudentTermTracker.Services
 {
@@ -17,14 +18,16 @@ namespace StudentTermTracker.Services
 
     public class AuthenticationService : IAuthenticationService
     {
-
         private const string USER_SESSION_STORAGE_KEY = "user_account_session";
         private readonly HttpClient _httpClient;
+        private readonly CustomAuthStateProvider _authStateProvider;
         private UserAccountSession? _userAccountSession;
 
-        public AuthenticationService(IHttpClientFactory httpClientFactory)
+        public AuthenticationService(IHttpClientFactory httpClientFactory, AuthenticationStateProvider authStateProvider)
         {
             _httpClient = httpClientFactory.CreateClient("AppHttpClient");
+            _authStateProvider = (CustomAuthStateProvider)authStateProvider;
+            Console.WriteLine($"API Base URL: {_httpClient.BaseAddress}");
         }
 
         public UserAccountSession? UserAccountSession => _userAccountSession;
@@ -39,6 +42,7 @@ namespace StudentTermTracker.Services
             if (!string.IsNullOrWhiteSpace(userAccountSessionJson))
             {
                 _userAccountSession = JsonSerializer.Deserialize<UserAccountSession>(userAccountSessionJson);
+                _authStateProvider.UpdateAuthenticationState(_userAccountSession);
             }
         }
         
@@ -48,12 +52,17 @@ namespace StudentTermTracker.Services
 
             try
             {
+                Console.WriteLine($"Attempting to authenticate user: {username}");
+                Console.WriteLine($"API Endpoint: {_httpClient.BaseAddress}api/Account/Login");
+                
                 var response = await _httpClient.PostAsJsonAsync("api/Account/Login", new 
                 {
                     Username = username,
                     Password = password
                 });
 
+                Console.WriteLine($"Authentication Response Status: {response?.StatusCode}");
+                
                 if (response is not null && response.IsSuccessStatusCode)
                 {
                     _userAccountSession = await response.Content.ReadFromJsonAsync<UserAccountSession>();
@@ -62,15 +71,20 @@ namespace StudentTermTracker.Services
                         await SecureStorage.Default.SetAsync(USER_SESSION_STORAGE_KEY,
                             JsonSerializer.Serialize(_userAccountSession));
                         result = true;
+                        _authStateProvider.UpdateAuthenticationState(_userAccountSession);
+                        Console.WriteLine($"Successfully authenticated user: {username}");
                     }
                 }
-                
-               // return result;
-                
+                else
+                {
+                    var errorContent = await response?.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Authentication failed. Error: {errorContent}");
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error authenticating: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
             }
 
             return result;
@@ -78,22 +92,47 @@ namespace StudentTermTracker.Services
 
         public async Task<bool> Register(string fullName, string userName, string password)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/Account/Register", new 
+            try
             {
-                FullName = fullName,
-                UserName = userName,
-                Password = password,
-                Role = "User" // Default role for new users
-            });
+                Console.WriteLine($"Attempting to register user: {userName}");
+                Console.WriteLine($"API Endpoint: {_httpClient.BaseAddress}api/Account/Register");
+                
+                var response = await _httpClient.PostAsJsonAsync("api/Account/Register", new 
+                {
+                    FullName = fullName,
+                    UserName = userName,
+                    Password = password,
+                    Role = "User" // Default role for new users
+                });
 
-            return response is not null && response.IsSuccessStatusCode;
+                Console.WriteLine($"Registration Response Status: {response?.StatusCode}");
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Registration failed. Error: {errorContent}");
+                }
+                else
+                {
+                    Console.WriteLine($"Successfully registered user: {userName}");
+                }
+
+                return response is not null && response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error registering: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                return false;
+            }
         }
 
         public void Logout()
         {
             _userAccountSession = null;
             SecureStorage.Default.Remove(USER_SESSION_STORAGE_KEY);
+            _authStateProvider.UpdateAuthenticationState(null);
+            Console.WriteLine("User logged out");
         }
-
     }
 }

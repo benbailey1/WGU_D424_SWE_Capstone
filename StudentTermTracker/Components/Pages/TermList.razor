@@ -3,6 +3,7 @@
 @using StudentTermTracker.Models
 @using StudentTermTracker.Services
 @inject NavigationManager Navigation
+@inject IAuthenticationService AuthService
 @implements IDisposable
 
 <h3>TermList</h3>
@@ -138,6 +139,19 @@
             );
 
     protected override async Task OnInitializedAsync()
+    {
+        await AuthService.FetchUserAccountSession();
+        
+        if (AuthService.UserAccountSession == null)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+        
+        await LoadTerms();
+    }
+
+    private async Task LoadTerms()
     {
         if (Services.Settings.FirstRun)
         {

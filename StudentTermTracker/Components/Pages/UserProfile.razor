@@ -1,8 +1,8 @@
 ﻿@page "/profile"
 @using StudentTermTracker.Models
 @using StudentTermTracker.Services
-@inject IAuthService AuthService
-@inject IUserDataService UserDataService
+@inject IAuthenticationService AuthenticationService
+@* @inject IUserDataService UserDataService *@
 @inject NavigationManager NavigationManager
 
 <h3>UserProfile</h3>
@@ -36,28 +36,28 @@ else
     {
         isLoading = true;
 
-        try
-        {
-            if (await AuthService.IsAuthenticatedAsync())
-            {
-                var userId = await AuthService.GetUserIdAsync();
-                currentUser = await UserDataService.GetUserAsync(userId);
-                isLoading = false;
-            }
-        }
-        catch (Exception ex)
-        {
+        // try
+        // {
+        //     if (await AuthService.IsAuthenticatedAsync())
+        //     {
+        //         var userId = await AuthService.GetUserIdAsync();
+        //         currentUser = await UserDataService.GetUserAsync(userId);
+        //         isLoading = false;
+        //     }
+        // }
+        // catch (Exception ex)
+        // {
 
-            throw;
-        }
-        finally
-        {
-            isLoading = false;
-        }
+        //     throw;
+        // }
+        // finally
+        // {
+        //     isLoading = false;
+        // }
     }
     private async Task HandleLogout(MouseEventArgs e)
     {
-        await AuthService.SignOutAsync();
+        // await AuthService.SignOutAsync();
         NavigationManager.NavigateTo("/login");
     }
 

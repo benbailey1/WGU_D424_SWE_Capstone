@@ -1,5 +1,24 @@
 ﻿@page "/"
+@using StudentTermTracker.Services
+@inject IAuthenticationService AuthService
+@inject NavigationManager NavigationManager
 
-<h1>Hello, Student!</h1>
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await AuthService.FetchUserAccountSession();
+        
+        if (AuthService.UserAccountSession == null)
+        {
+            NavigationManager.NavigateTo("/login");
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/terms");
+        }
+    }
+}
+
+<h1>Redirecting...</h1>
 
 Welcome to your portal for managing Terms, Courses, and Assessments.

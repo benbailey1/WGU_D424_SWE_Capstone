@@ -35,7 +35,7 @@ namespace StudentTermTrackerAPI.Auth.Repositories
 
         public async Task CreateUserAccount(UserAccount userAccount)
         {
-            await _dbConnService.ExecuteAsync("INSERT INTO UserAccounts (FullName, UserName, Password) VALUES (@FullName, @UserName, @Password, @Role)", userAccount);
+            await _dbConnService.ExecuteAsync("INSERT INTO UserAccounts (FullName, UserName, Password, Role) VALUES (@FullName, @UserName, @Password, @Role)", userAccount);
         }
 
         public async Task UpdateUserAccount(UserAccount userAccount)

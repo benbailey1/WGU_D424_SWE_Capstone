@@ -5,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.AspNetCore.Components.Authorization;
-using AndroidX.Emoji2.Text.FlatBuffer;
 using Microsoft.Extensions.Http;
 
 
@@ -35,34 +34,19 @@ namespace StudentTermTracker
             });
             
             builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+            builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
+            builder.Services.AddAuthorizationCore();
 
-
-#if DEBUG
-            builder.Services.AddBlazorWebViewDeveloperTools();
-    		builder.Logging.AddDebug();
-#endif
-            //builder.Services.AddSingleton<IAuthService>(serviceProvider =>
-            //{
-            //#if ANDROID
-            //                var currentActivity = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity;
-            //                return new MsalAuthService(currentActivity);
-            //#else
-            //                return new MsalAuthService();
-            //#endif
-            //});
-
-            //builder.Services.AddAuthorizationCore();
-            builder.Services.AddAuthorizationCore(options =>
-            {
-                options.AddPolicy("ReadWeather", policy => policy.RequireClaim("roles", "Weather.Read"));
-            });
-            builder.Services.AddCascadingAuthenticationState();
-            builder.Services.TryAddScoped<AuthenticationStateProvider, ExternalAuthStateProvider>();
-            builder.Services.AddSingleton<IUserDataService, AzureTableUserService>();
-            
             builder.Services.AddScoped<IDialogService, DialogService>();
             builder.Services.AddScoped<ShareService>();
 
+#if DEBUG
+            builder.Services.AddBlazorWebViewDeveloperTools();
+            // add ClearProviders and SetMinimumLogLevel to reduce the insane amount of logs in debug
+            builder.Logging.ClearProviders(); 
+            builder.Logging.AddDebug();
+            builder.Logging.SetMinimumLevel(LogLevel.Error);
+#endif      
             var host = builder.Build();
             return host;
         }
