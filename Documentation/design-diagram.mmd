@@ -1,0 +1,47 @@
+flowchart TB
+    subgraph Client["Client Layer"]
+        Browser["Web Browser"]
+        MobileApp["Mobile App"]
+    end
+
+    subgraph API["API Layer"]
+        Controllers["API Controllers"]
+        AuthMiddleware["Authentication Middleware"]
+        Swagger["Swagger/OpenAPI"]
+    end
+
+    subgraph Business["Business Layer"]
+        UserService["User Account Service"]
+        JWTService["JWT Service"]
+    end
+
+    subgraph Data["Data Access Layer"]
+        UserRepo["User Account Repository"]
+        DBService["Database Connection Service"]
+    end
+
+    Database[("SQL Database")]
+
+    %% Client Layer connections
+    Browser --> Controllers
+    MobileApp --> Controllers
+
+    %% API Layer connections
+    Controllers --> AuthMiddleware
+    AuthMiddleware --> UserService
+    AuthMiddleware --> JWTService
+    Swagger --> Controllers
+
+    %% Business Layer connections
+    UserService --> UserRepo
+
+    %% Data Layer connections
+    UserRepo --> DBService
+    DBService --> Database
+
+    %% Styling
+    classDef default fill:#f9f9f9,stroke:#333,stroke-width:2px;
+    classDef database fill:#f5f5f5,stroke:#333,stroke-width:2px;
+    classDef subgraph fill:#ffffff,stroke:#333,stroke-width:2px;
+    class Database database;
+    class Client,API,Business,Data subgraph; 

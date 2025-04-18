@@ -1,0 +1,55 @@
+classDiagram
+    class DatabaseConnectionService {
+        -string _connectionString
+        +CreateConnection() IDbConnection
+        +QuerySingleOrDefaultAsync() Task~T~
+        +QueryAsync() Task~IEnumerable~T~~
+        +ExecuteAsync() Task~int~
+        +BeginTransactionAsync() Task~IDbTransaction~
+    }
+
+    class IDatabaseConnectionService {
+        <<interface>>
+        +CreateConnection() IDbConnection
+        +QuerySingleOrDefaultAsync() Task~T~
+        +QueryAsync() Task~IEnumerable~T~~
+        +ExecuteAsync() Task~int~
+        +BeginTransactionAsync() Task~IDbTransaction~
+    }
+
+    class JWTService {
+        +GenerateToken() string
+        +ValidateToken() bool
+    }
+
+    class UserAccountService {
+        +RegisterUser() Task~bool~
+        +LoginUser() Task~string~
+        +ValidateUser() Task~bool~
+    }
+
+    class IUserAccountService {
+        <<interface>>
+        +RegisterUser() Task~bool~
+        +LoginUser() Task~string~
+        +ValidateUser() Task~bool~
+    }
+
+    class UserAccountRepository {
+        +CreateUser() Task~bool~
+        +GetUser() Task~UserAccount~
+        +UpdateUser() Task~bool~
+    }
+
+    class IUserAccountRepository {
+        <<interface>>
+        +CreateUser() Task~bool~
+        +GetUser() Task~UserAccount~
+        +UpdateUser() Task~bool~
+    }
+
+    DatabaseConnectionService ..|> IDatabaseConnectionService
+    UserAccountService ..|> IUserAccountService
+    UserAccountRepository ..|> IUserAccountRepository
+    UserAccountService --> UserAccountRepository
+    UserAccountRepository --> DatabaseConnectionService 
