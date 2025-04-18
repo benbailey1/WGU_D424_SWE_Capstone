@@ -120,12 +120,12 @@
 
         await DatabaseService.AddAssessmentAsync(newAssessment);
 
-        NavigationManager.NavigateTo($"/course/details/{CourseId}");
+        NavigationManager.NavigateTo($"/course/edit/{CourseId}");
     }
 
     private void CancelAssessment_Clicked()
     {
-        NavigationManager.NavigateTo($"/course/details/{CourseId}");
+        NavigationManager.NavigateTo($"/course/edit/{CourseId}");
     }
 
 }

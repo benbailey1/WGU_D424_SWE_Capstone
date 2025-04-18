@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace StudentTermTracker.Models
 {
-    public class Course
+    public class Course : INotifiable
     {
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }
@@ -19,6 +19,7 @@ namespace StudentTermTracker.Models
         public StatusType Status { get; set; }
         public String Notes { get; set; }
 
+        // POLYMORPHISM Example 
         public enum StatusType
         {
             [Display(Name = "Not Selected")]

@@ -47,6 +47,11 @@
                             <span class="label">End Date</span>
                             <span class="value">@term.EndDate.ToString("M/dd/yyyy")</span>
                         </div>
+                        <div class="grid-row">
+                            <button class="btn btn-info btn-sm" @onclick="() => ViewReport(term)" @onclick:stopPropagation>
+                                View Report
+                            </button>
+                        </div>
                     </div>
                 </div>
             }
@@ -308,6 +313,11 @@
     {
         // Note: You'll need to implement navigation to your TermEdit page in Blazor
         Navigation.NavigateTo($"/term/edit/{term.Id}");
+    }
+
+    private void ViewReport(Term term)
+    {
+        Navigation.NavigateTo($"/report/{term.Id}");
     }
 
     public void Dispose()

@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace StudentTermTracker.Models
 {
-    public class Assessment
+    // Property/Data ENCAPSULATION example 
+    public class Assessment : INotifiable
     {
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }

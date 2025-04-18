@@ -1,5 +1,6 @@
 ﻿namespace StudentTermTracker.Services
 {
+    // INHERITANCE EXAMPLE 
     public class DialogService : IDialogService
     {
         public async Task<bool> DisplayAlert(string title, string message, string accept, string cancel = null)

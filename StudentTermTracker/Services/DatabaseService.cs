@@ -209,6 +209,31 @@ namespace StudentTermTracker.Services
             await _dbConn.DeleteAsync<Assessment>(Id);
         }
 
+        public static async Task<IEnumerable<AssessmentReportItem>> GetAssessmentsForReportAsync(int termId)
+        {
+            await Init();
+            
+            var courses = await _dbConn.Table<Course>().Where(c => c.TermId == termId).ToListAsync();
+            var reportItems = new List<AssessmentReportItem>();
+
+            foreach (var course in courses)
+            {
+                var assessments = await _dbConn.Table<Assessment>().Where(a => a.CourseId == course.Id).ToListAsync();
+                foreach (var assessment in assessments)
+                {
+                    reportItems.Add(new AssessmentReportItem
+                    {
+                        CourseName = course.Name,
+                        AssessmentName = assessment.Name,
+                        AssessmentType = assessment.Type.ToString(),
+                        StartDate = assessment.StartDate,
+                        EndDate = assessment.EndDate
+                    });
+                }
+            }
+
+            return reportItems.OrderBy(r => r.CourseName).ThenBy(r => r.AssessmentName);
+        }
 
         #endregion
 
