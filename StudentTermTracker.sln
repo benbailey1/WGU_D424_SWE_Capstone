@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StudentTermTracker", "Stude
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudentTermTrackerAPI", "StudentTermTrackerAPI\StudentTermTrackerAPI.csproj", "{93EC039E-1C1A-42D3-9945-46771EA49B8F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudentTermTracker.Tests", "StudentTermTracker.Tests\StudentTermTracker.Tests.csproj", "{5D7D5249-F6F8-4AE1-8342-4561ABE2BC76}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,10 @@ Global
 		{93EC039E-1C1A-42D3-9945-46771EA49B8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93EC039E-1C1A-42D3-9945-46771EA49B8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93EC039E-1C1A-42D3-9945-46771EA49B8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D7D5249-F6F8-4AE1-8342-4561ABE2BC76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D7D5249-F6F8-4AE1-8342-4561ABE2BC76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D7D5249-F6F8-4AE1-8342-4561ABE2BC76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D7D5249-F6F8-4AE1-8342-4561ABE2BC76}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
