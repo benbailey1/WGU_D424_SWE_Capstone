@@ -1,6 +1,7 @@
 @page "/register"
 @using StudentTermTracker.Services
-@inject AuthenticationService AuthenticationService
+@inject IAuthenticationService AuthenticationService
+@inject NavigationManager NavigationManager
 
 <PageTitle>Register</PageTitle>
 
@@ -51,7 +52,7 @@
         var success = await AuthenticationService.Register(fullName, userName, password);
         if (success)
         {
-            await Shell.Current.GoToAsync($"//{nameof(Login)}");
+            NavigationManager.NavigateTo("/login");
         }
         else
         {
@@ -59,8 +60,8 @@
         }
     }
 
-    private async Task BackToLogin()
+    private void BackToLogin()
     {
-        await Shell.Current.GoToAsync($"//{nameof(Login)}");
+        NavigationManager.NavigateTo("/login");
     }
 }
