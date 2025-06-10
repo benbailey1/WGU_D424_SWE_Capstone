@@ -24,11 +24,11 @@ namespace StudentTermTracker.Tests.ApiTests
             var jwtConfigSection = new Mock<IConfigurationSection>();
             jwtConfigSection.Setup(x => x["Issuer"]).Returns("http://localhost:5225/");
             jwtConfigSection.Setup(x => x["Audience"]).Returns("http://localhost:5225/");
-            jwtConfigSection.Setup(x => x["Key"]).Returns("test-key-12345678901234567890123456789012345678901234567890123456789012345678901234567890");
+            jwtConfigSection.Setup(x => x["Key"]).Returns("test-key-123456789012345678901234567890");
 
             _mockConfiguration.Setup(x => x["JwtConfig:Issuer"]).Returns("http://localhost:5225/");
             _mockConfiguration.Setup(x => x["JwtConfig:Audience"]).Returns("http://localhost:5225/");
-            _mockConfiguration.Setup(x => x["JwtConfig:Key"]).Returns("test-key-12345678901234567890123456789012345678901234567890123456789012345678901234567890");
+            _mockConfiguration.Setup(x => x["JwtConfig:Key"]).Returns("test-key-12345678901234567890");
             
             _jwtService = new JWTService(_mockDbService.Object, _mockConfiguration.Object);
         }
