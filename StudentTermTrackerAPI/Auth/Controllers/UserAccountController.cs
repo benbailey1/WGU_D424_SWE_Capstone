@@ -45,6 +45,7 @@ namespace StudentTermTrackerAPI.Auth.Controllers
                 string.IsNullOrEmpty(userAccount.UserName) ||
                 string.IsNullOrEmpty(userAccount.Password))
             {
+                Console.WriteLine("Bad Request -- Full Name, User Name, and Password are required");
                 return BadRequest("Full Name, User Name, and Password are required");
             }
 
